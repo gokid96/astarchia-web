@@ -39,3 +39,9 @@ __screenshots__/
 .env.local
 .env.development.local
 .env.production.local
+
+# Claude
+.claude
+
+# VS Code
+.vscode
