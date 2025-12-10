@@ -29,11 +29,11 @@
         <template #content>
           <form @submit.prevent="handleLogin" class="login-form">
             <div class="field">
-              <InputText id="loginId" v-model="loginId" type="loginId" placeholder="아이디" required autofocus title="" />
+              <InputText id="loginId" v-model="loginId" type="loginId" placeholder="아이디" required autofocus />
             </div>
 
             <div class="field">
-              <Password id="password" v-model="password" placeholder="비밀번호" :feedback="false" required title="" />
+              <Password id="password" v-model="password" placeholder="비밀번호" :feedback="false" required />
             </div>
             <div class="loginBtn">
               <Button type="submit" label="로그인" icon="pi pi-sign-in" severity="primary" :loading="isLoading"
