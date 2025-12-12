@@ -102,13 +102,18 @@ export const useWorkspaceStore = defineStore('workspace', () => {
   async function deleteWorkspace(workspaceId) {
     try {
       await workspaceApi.deleteWorkspace(workspaceId)
+      
+      // 마지막 워크스페이스면 먼저 기본 워크스페이스 생성 (깜빡임 방지)
+      if (workspaces.value.length === 1) {
+        await createDefaultWorkspace()
+      }
+      
+      // 그 다음 삭제된 워크스페이스 제거
       workspaces.value = workspaces.value.filter(w => w.workspaceId !== workspaceId)
-
+      
       // 삭제된 워크스페이스가 현재 워크스페이스면 다른 워크스페이스 선택
       if (currentWorkspaceId.value === workspaceId) {
-        currentWorkspaceId.value = workspaces.value.length > 0 
-          ? workspaces.value[0].workspaceId 
-          : null
+        currentWorkspaceId.value = workspaces.value[0]?.workspaceId || null
       }
     } catch (error) {
       console.error('Failed to delete workspace:', error)
@@ -170,12 +175,18 @@ export const useWorkspaceStore = defineStore('workspace', () => {
   async function leaveWorkspace(workspaceId) {
     try {
       await workspaceApi.leaveWorkspace(workspaceId)
-      workspaces.value = workspaces.value.filter(w => w.workspaceId !== workspaceId)
 
+      // 마지막 워크스페이스면 먼저 기본 워크스페이스 생성 (깜빡임 방지)
+      if (workspaces.value.length === 1) {
+        await createDefaultWorkspace()
+      }
+      
+      // 그 다음 나간 워크스페이스 제거
+      workspaces.value = workspaces.value.filter(w => w.workspaceId !== workspaceId)
+      
+      // 나간 워크스페이스가 현재 워크스페이스면 다른 워크스페이스 선택
       if (currentWorkspaceId.value === workspaceId) {
-        currentWorkspaceId.value = workspaces.value.length > 0 
-          ? workspaces.value[0].workspaceId 
-          : null
+        currentWorkspaceId.value = workspaces.value[0]?.workspaceId || null
       }
     } catch (error) {
       console.error('Failed to leave workspace:', error)

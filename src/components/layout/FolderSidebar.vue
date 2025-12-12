@@ -2,9 +2,12 @@
   <div class="folder-sidebar">
     <div class="sidebar-header">
       <Button icon="pi pi-pen-to-square" severity="primary" @click="handleCreatePost" v-tooltip.bottom="'새 노트'" text />
-      <Button icon="pi pi-folder-plus" severity="secondary" @click="handleCreateRootFolder" v-tooltip.bottom="'새 폴더'" text />
-      <Button :icon="allExpanded ? 'pi pi-angle-double-up' : 'pi pi-angle-double-down'" severity="secondary" @click="toggleAllFolders" v-tooltip.bottom="allExpanded ? '모두 접기' : '모두 펼치기'" text />
-      <Button icon="pi pi-sort-alt" severity="secondary" @click="toggleSortMenu" v-tooltip.bottom="'정렬 순서'" text aria-haspopup="true" aria-controls="sort_menu" />
+      <Button icon="pi pi-folder-plus" severity="secondary" @click="handleCreateRootFolder" v-tooltip.bottom="'새 폴더'"
+        text />
+      <Button :icon="allExpanded ? 'pi pi-angle-double-up' : 'pi pi-angle-double-down'" severity="secondary"
+        @click="toggleAllFolders" v-tooltip.bottom="allExpanded ? '모두 접기' : '모두 펼치기'" text />
+      <Button icon="pi pi-sort-alt" severity="secondary" @click="toggleSortMenu" v-tooltip.bottom="'정렬 순서'" text
+        aria-haspopup="true" aria-controls="sort_menu" />
       <Menu ref="sortMenu" id="sort_menu" :model="sortMenuItems" :popup="true" />
     </div>
 
@@ -12,16 +15,13 @@
     <div class="sidebar-content" @dragover.prevent="handleRootDragOver" @drop.prevent="handleRootDrop"
       @dragleave="handleRootDragLeave" :class="{ 'root-drag-over': isRootDragOver }">
 
-      <div v-if="isLoading" class="loading-indicator">
-        <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
-      </div>
-      <div v-else-if="folderTree.length === 0" class="empty-message">
+      <div v-if="folderTree.length === 0" class="empty-message">
         <p>폴더가 없습니다</p>
       </div>
       <TreeNode v-else v-for="node in folderTree" :key="node.key" :node="node" :selected-key="selectedKey"
-        :editing-key="editingKey" :expand-all="expandAllState"
-        @node-click="handleNodeClick" @node-context-menu="handleNodeContextMenu" @node-drag-start="handleDragStart"
-        @node-drop="handleDrop" @node-rename="handleNodeRename" />
+        :editing-key="editingKey" :expand-all="expandAllState" @node-click="handleNodeClick"
+        @node-context-menu="handleNodeContextMenu" @node-drag-start="handleDragStart" @node-drop="handleDrop"
+        @node-rename="handleNodeRename" />
     </div>
 
     <!-- 하단 사용자 메뉴 -->

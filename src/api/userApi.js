@@ -72,10 +72,10 @@ export const userApi = {
     return apiClient.delete('/users/me')
   },
 
-  // 사용자 검색 (이메일로) - /api/v1/users/search
-  async searchUsers(email) {
+  // 사용자 검색 (이메일 또는 닉네임) - /api/v1/users/search
+  async searchUsers(query) {
     const response = await apiClient.get('/users/search', {
-      params: { email }
+      params: { query }
     })
     response.data = response.data.map(transformUser)
     return response
