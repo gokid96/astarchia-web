@@ -1,6 +1,6 @@
 <template>
   <div class="main-view">
-    <AppHeader />
+    <!-- <AppHeader /> -->
 
     <Splitter style="height: calc(100vh - 60px)">
       <SplitterPanel :size="20" :minSize="15" :maxSize="30">

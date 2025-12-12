@@ -27,8 +27,9 @@
             <span class="workspace-item-name">{{ workspace.name }}</span>
             <span v-if="isTeamWorkspace(workspace)" class="workspace-member-count">{{ workspace.memberCount }}명</span>
           </div>
-          <i class="pi pi-cog settings-icon" @click.stop="handleManageWorkspace(workspace)"></i>
-          <i v-if="workspace.workspaceId === workspaceStore.currentWorkspaceId" class="pi pi-check check-icon"></i>
+          <i v-if="workspace.workspaceId === workspaceStore.currentWorkspaceId" class="pi pi-cog settings-icon"
+            @click.stop="handleManageWorkspace(workspace)"></i>
+
 
         </div>
       </div>
@@ -361,6 +362,7 @@ onUnmounted(() => {
   align-items: center;
   gap: 0.75rem;
   padding: 0.625rem 0.75rem;
+  margin-bottom: 0.325rem;
   border-radius: 6px;
   cursor: pointer;
   transition: background-color 0.15s;
@@ -382,22 +384,12 @@ onUnmounted(() => {
 }
 
 .workspace-item .settings-icon {
-  color: var(--text-color-secondary);
+  color: var(--primary-color);
   font-size: 0.875rem;
-  opacity: 0;
-  transition: opacity 0.15s;
   padding: 0.25rem;
   border-radius: 4px;
 }
 
-.workspace-item:hover .settings-icon {
-  opacity: 1;
-}
-
-.workspace-item .settings-icon:hover {
-  color: var(--text-color);
-  background-color: var(--surface-border);
-}
 
 .workspace-avatar {
   width: 24px;
