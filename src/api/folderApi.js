@@ -18,48 +18,44 @@ function transformFolder(folder) {
 }
 
 export const folderApi = {
-  // 루트 폴더 목록 조회 - /api/v1/folders (JWT 인증 사용)
-  async getRootFolders() {
-    const response = await apiClient.get('/folders')
-    // 응답 데이터 변환
+  // 루트 폴더 목록 조회
+  async getRootFolders(workspaceId) {
+    const response = await apiClient.get(`/workspaces/${workspaceId}/folders`)
     response.data = response.data.map(transformFolder)
     return response
   },
 
-  // 하위 폴더 목록 조회 - /api/v1/folders/{folderId}/children (JWT 인증 사용)
-  async getChildFolders(folderId) {
-    const response = await apiClient.get(`/folders/${folderId}/children`)
-    // 응답 데이터 변환
+  // 하위 폴더 목록 조회
+  async getChildFolders(workspaceId, folderId) {
+    const response = await apiClient.get(`/workspaces/${workspaceId}/folders/${folderId}/children`)
     response.data = response.data.map(transformFolder)
     return response
   },
 
-  // 폴더 생성 - /api/v1/folders (JWT 인증 사용)
-  async createFolder(data) {
-    const response = await apiClient.post('/folders', data)
-    // 응답 데이터 변환
+  // 폴더 생성
+  async createFolder(workspaceId, data) {
+    const response = await apiClient.post(`/workspaces/${workspaceId}/folders`, data)
     response.data = transformFolder(response.data)
     return response
   },
 
-  // 폴더 수정 - /api/v1/folders/{folderId} (JWT 인증 사용)
-  async updateFolder(folderId, data) {
-    const response = await apiClient.patch(`/folders/${folderId}`, data)
-    // 응답 데이터 변환
+  // 폴더 수정
+  async updateFolder(workspaceId, folderId, data) {
+    const response = await apiClient.put(`/workspaces/${workspaceId}/folders/${folderId}`, data)
     response.data = transformFolder(response.data)
     return response
   },
 
-  // 폴더 이동 - /api/v1/folders/{folderId}/move (JWT 인증 사용)
-  async moveFolder(folderId, data) {
-    const response = await apiClient.patch(`/folders/${folderId}/move`, data)
+  // 폴더 이동
+  async moveFolder(workspaceId, folderId, data) {
+    const response = await apiClient.put(`/workspaces/${workspaceId}/folders/${folderId}/move`, data)
     response.data = transformFolder(response.data)
     return response
   },
 
-  // 폴더 삭제 - /api/v1/folders/{folderId} (JWT 인증 사용)
-  deleteFolder(folderId) {
-    return apiClient.delete(`/folders/${folderId}`)
+  // 폴더 삭제
+  deleteFolder(workspaceId, folderId) {
+    return apiClient.delete(`/workspaces/${workspaceId}/folders/${folderId}`)
   },
 }
 

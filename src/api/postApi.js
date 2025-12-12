@@ -17,7 +17,6 @@ function transformPost(post) {
     viewCount: post.viewCount || 0,
     createdAt: post.createdAt,
     updatedAt: post.updatedAt,
-    // 추가 정보 (있으면 포함)
     author: post.author,
     category: post.category,
     series: post.series,
@@ -26,54 +25,48 @@ function transformPost(post) {
 }
 
 export const postApi = {
-
-  // 내 게시글 목록 조회 - /api/v1/posts/my (JWT 인증 사용)
-  async getMyPosts(page = 0, size = 20) {
-    const response = await apiClient.get('/posts/my', {
-      params: { page, size },
-    })
-    // 응답 데이터 변환 (페이지네이션 응답)
-    if (response.data.content) {
-      response.data.content = response.data.content.map(transformPost)
-    }
+  // 워크스페이스의 게시글 목록 조회
+  async getPosts(workspaceId) {
+    const response = await apiClient.get(`/workspaces/${workspaceId}/posts`)
+    response.data = response.data.map(transformPost)
     return response
   },
 
-  // ID로 게시글 조회 - /api/v1/posts/id/{postId}
-  async getPostById(postId) {
-    const response = await apiClient.get(`/posts/id/${postId}`)
+  // 게시글 상세 조회
+  async getPost(workspaceId, postId) {
+    const response = await apiClient.get(`/workspaces/${workspaceId}/posts/${postId}`)
     response.data = transformPost(response.data)
     return response
   },
 
-  // 게시글 생성 - /api/v1/posts (JWT 인증 사용)
-  async createPost(data) {
-    console.log('postApi.createPost - Sending to backend:', JSON.stringify(data, null, 2))
-    const response = await apiClient.post('/posts', data)
-    console.log('postApi.createPost - Backend response:', JSON.stringify(response.data, null, 2))
+  // 게시글 생성
+  async createPost(workspaceId, data) {
+    console.log('postApi.createPost - workspaceId:', workspaceId, 'data:', JSON.stringify(data, null, 2))
+    const response = await apiClient.post(`/workspaces/${workspaceId}/posts`, data)
+    console.log('postApi.createPost - response:', JSON.stringify(response.data, null, 2))
     response.data = transformPost(response.data)
     return response
   },
 
-  // 게시글 수정 - /api/v1/posts/{postId} (JWT 인증 사용)
-  async updatePost(postId, data) {
-    console.log('postApi.updatePost - Updating postId:', postId, 'with data:', JSON.stringify(data, null, 2))
-    const response = await apiClient.patch(`/posts/${postId}`, data)
-    console.log('postApi.updatePost - Backend response:', JSON.stringify(response.data, null, 2))
+  // 게시글 수정
+  async updatePost(workspaceId, postId, data) {
+    console.log('postApi.updatePost - workspaceId:', workspaceId, 'postId:', postId, 'data:', JSON.stringify(data, null, 2))
+    const response = await apiClient.put(`/workspaces/${workspaceId}/posts/${postId}`, data)
+    console.log('postApi.updatePost - response:', JSON.stringify(response.data, null, 2))
     response.data = transformPost(response.data)
     return response
   },
 
-  // 게시글 삭제 - /api/v1/posts/{postId} (JWT 인증 사용)
-  deletePost(postId) {
-    return apiClient.delete(`/posts/${postId}`)
+  // 게시글 삭제
+  deletePost(workspaceId, postId) {
+    return apiClient.delete(`/workspaces/${workspaceId}/posts/${postId}`)
   },
 
-  // 게시글 폴더 이동 - /api/v1/posts/{postId}/move (JWT 인증 사용)
-  async movePost(postId, folderId) {
-    console.log('postApi.movePost - Moving postId:', postId, 'to folderId:', folderId)
-    const response = await apiClient.patch(`/posts/${postId}/move`, { folderId })
-    console.log('postApi.movePost - Backend response:', JSON.stringify(response.data, null, 2))
+  // 게시글 폴더 이동
+  async movePost(workspaceId, postId, folderId) {
+    console.log('postApi.movePost - workspaceId:', workspaceId, 'postId:', postId, 'folderId:', folderId)
+    const response = await apiClient.put(`/workspaces/${workspaceId}/posts/${postId}/move`, { folderId })
+    console.log('postApi.movePost - response:', JSON.stringify(response.data, null, 2))
     response.data = transformPost(response.data)
     return response
   },

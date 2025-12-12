@@ -71,6 +71,15 @@ export const userApi = {
   async deleteUser() {
     return apiClient.delete('/users/me')
   },
+
+  // 사용자 검색 (이메일로) - /api/v1/users/search
+  async searchUsers(email) {
+    const response = await apiClient.get('/users/search', {
+      params: { email }
+    })
+    response.data = response.data.map(transformUser)
+    return response
+  },
 }
 
 export default userApi

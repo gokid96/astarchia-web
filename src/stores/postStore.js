@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { postApi } from '@/api/postApi'
 import { useFolderStore } from './folderStore'
+import { useWorkspaceStore } from './workspaceStore'
 
 export const usePostStore = defineStore('post', () => {
   // 상태
@@ -14,42 +15,46 @@ export const usePostStore = defineStore('post', () => {
     totalElements: 0,
   })
 
-  // 폴더 스토어
+  // 스토어
   const folderStore = useFolderStore()
+  const workspaceStore = useWorkspaceStore()
 
-  // 계산된 속성 - 선택된 폴더의 게시글 필터링
+  // 선택된 폴더의 게시글 필터링
   const filteredPosts = computed(() => {
     if (!folderStore.selectedFolderId) {
       return posts.value
     }
-
     return posts.value.filter((post) => post.folderId === folderStore.selectedFolderId)
   })
 
-  // 내 게시글 목록 조회 (JWT 인증 사용)
-  async function fetchMyPosts(page = 0, size = 20) {
+  // 워크스페이스의 게시글 목록 조회
+  async function fetchPosts() {
+    const workspaceId = workspaceStore.currentWorkspaceId
+    if (!workspaceId) {
+      console.warn('No workspace selected')
+      return []
+    }
+
     try {
-      const response = await postApi.getMyPosts(page, size)
-
-      posts.value = response.data.content || response.data
-      pagination.value = {
-        page: response.data.number || page,
-        size: response.data.size || size,
-        totalPages: response.data.totalPages || 0,
-        totalElements: response.data.totalElements || 0,
-      }
-
+      const response = await postApi.getPosts(workspaceId)
+      posts.value = response.data
+      pagination.value.totalElements = response.data.length
       return response.data
     } catch (error) {
-      console.error('Failed to fetch my posts:', error)
+      console.error('Failed to fetch posts:', error)
       throw error
     }
   }
 
-  // ID로 게시글 조회
+  // 게시글 상세 조회
   async function getPostById(postId) {
+    const workspaceId = workspaceStore.currentWorkspaceId
+    if (!workspaceId) {
+      throw new Error('No workspace selected')
+    }
+
     try {
-      const response = await postApi.getPostById(postId)
+      const response = await postApi.getPost(workspaceId, postId)
       currentPost.value = response.data
       return response.data
     } catch (error) {
@@ -58,10 +63,15 @@ export const usePostStore = defineStore('post', () => {
     }
   }
 
-  // 게시글 생성 (JWT 인증 사용)
+  // 게시글 생성
   async function createPost(data) {
+    const workspaceId = workspaceStore.currentWorkspaceId
+    if (!workspaceId) {
+      throw new Error('No workspace selected')
+    }
+
     try {
-      const response = await postApi.createPost(data)
+      const response = await postApi.createPost(workspaceId, data)
       const newPost = response.data
 
       posts.value.unshift(newPost)
@@ -74,19 +84,22 @@ export const usePostStore = defineStore('post', () => {
     }
   }
 
-  // 게시글 수정 (JWT 인증 사용)
+  // 게시글 수정
   async function updatePost(postId, data) {
+    const workspaceId = workspaceStore.currentWorkspaceId
+    if (!workspaceId) {
+      throw new Error('No workspace selected')
+    }
+
     try {
-      const response = await postApi.updatePost(postId, data)
+      const response = await postApi.updatePost(workspaceId, postId, data)
       const updatedPost = response.data
 
-      // 게시글 목록에서 업데이트
       const index = posts.value.findIndex((p) => p.id === postId)
       if (index !== -1) {
         posts.value[index] = updatedPost
       }
 
-      // 현재 게시글도 업데이트
       if (currentPost.value?.id === postId) {
         currentPost.value = updatedPost
       }
@@ -98,16 +111,19 @@ export const usePostStore = defineStore('post', () => {
     }
   }
 
-  // 게시글 삭제 (JWT 인증 사용)
+  // 게시글 삭제
   async function deletePost(postId) {
-    try {
-      await postApi.deletePost(postId)
+    const workspaceId = workspaceStore.currentWorkspaceId
+    if (!workspaceId) {
+      throw new Error('No workspace selected')
+    }
 
-      // 게시글 목록에서 제거
+    try {
+      await postApi.deletePost(workspaceId, postId)
+
       posts.value = posts.value.filter((p) => p.id !== postId)
       pagination.value.totalElements = Math.max(0, pagination.value.totalElements - 1)
 
-      // 현재 게시글도 초기화
       if (currentPost.value?.id === postId) {
         currentPost.value = null
       }
@@ -127,19 +143,22 @@ export const usePostStore = defineStore('post', () => {
     currentPost.value = null
   }
 
-  // 게시글 폴더 이동 (JWT 인증 사용)
+  // 게시글 폴더 이동
   async function movePost(postId, folderId) {
+    const workspaceId = workspaceStore.currentWorkspaceId
+    if (!workspaceId) {
+      throw new Error('No workspace selected')
+    }
+
     try {
-      const response = await postApi.movePost(postId, folderId)
+      const response = await postApi.movePost(workspaceId, postId, folderId)
       const updatedPost = response.data
 
-      // 게시글 목록에서 업데이트
       const index = posts.value.findIndex((p) => p.id === postId)
       if (index !== -1) {
         posts.value[index] = updatedPost
       }
 
-      // 현재 게시글도 업데이트
       if (currentPost.value?.id === postId) {
         currentPost.value = updatedPost
       }
@@ -151,12 +170,24 @@ export const usePostStore = defineStore('post', () => {
     }
   }
 
+  // 게시글 데이터 초기화 (워크스페이스 변경 시)
+  function clearPostData() {
+    posts.value = []
+    currentPost.value = null
+    pagination.value = {
+      page: 0,
+      size: 20,
+      totalPages: 0,
+      totalElements: 0,
+    }
+  }
+
   return {
     posts,
     currentPost,
     pagination,
     filteredPosts,
-    fetchMyPosts,
+    fetchPosts,
     getPostById,
     createPost,
     updatePost,
@@ -164,5 +195,6 @@ export const usePostStore = defineStore('post', () => {
     setCurrentPost,
     clearCurrentPost,
     movePost,
+    clearPostData,
   }
 })

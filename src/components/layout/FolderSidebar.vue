@@ -41,10 +41,12 @@ import Menu from 'primevue/menu'
 import { useFolderStore } from '@/stores/folderStore'
 import { usePostStore } from '@/stores/postStore'
 import { useAuthStore } from '@/stores/authStore'
+import { useWorkspaceStore } from '@/stores/workspaceStore'
 
 const folderStore = useFolderStore()
 const postStore = usePostStore()
 const authStore = useAuthStore()
+const workspaceStore = useWorkspaceStore()
 
 const selectedKey = ref(null)
 const contextMenu = ref(null)
@@ -119,6 +121,16 @@ watch(
   }
 )
 
+// 워크스페이스 변경 감지
+watch(
+  () => workspaceStore.currentWorkspaceId,
+  (newId, oldId) => {
+    if (newId && newId !== oldId && authStore.isAuthenticated) {
+      loadData()
+    }
+  }
+)
+
 async function loadData() {
   if (isLoadingData.value) {
     return
@@ -130,7 +142,7 @@ async function loadData() {
     if (authStore.isAuthenticated) {
       await Promise.all([
         folderStore.loadAllFolders(),
-        postStore.fetchMyPosts(0, 100)
+        postStore.fetchPosts()
       ])
       folderStore.updateFolderTree()
     }
