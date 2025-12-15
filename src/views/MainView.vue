@@ -1,8 +1,9 @@
 <template>
   <div class="main-view">
     <!-- <AppHeader /> -->
-
-    <Splitter style="height: calc(100vh - 60px)">
+    <!-- <Splitter style="height: calc(100vh - 60px)"> -->
+    <!-- 헤더 없을 때 -->
+    <Splitter style="height: 100vh">
       <SplitterPanel :size="20" :minSize="15" :maxSize="30">
         <FolderSidebar @folder-selected="handleFolderSelected" @create-folder="handleCreateFolder"
           @edit-folder="handleEditFolder" @delete-folder="handleDeleteFolder" @create-post="handleCreatePost"

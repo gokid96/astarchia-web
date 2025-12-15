@@ -65,7 +65,7 @@
 
     <template #footer>
       <Button label="취소" severity="secondary" @click="handleCancel" text />
-      <Button label="저장" severity="primary" @click="handleSave" :loading="isSaving" />
+      <Button label="저장" severity="primary" @click="handleSave" />
     </template>
   </Dialog>
 </template>

@@ -15,7 +15,7 @@
               :disabled="isEditMode && !workspaceStore.isAdmin" />
           </div>
           <div class="tab-actions">
-            <Button :label="isEditMode ? '저장' : '생성'" @click="handleSubmit" :loading="isSubmitting"
+            <Button :label="isEditMode ? '저장' : '생성'" @click="handleSubmit"
               :disabled="!workspaceName.trim() || (isEditMode && !workspaceStore.isAdmin)" />
           </div>
 
@@ -130,7 +130,7 @@
     </div>
     <template #footer>
       <Button label="취소" severity="secondary" text @click="isDeleteConfirmOpen = false" />
-      <Button label="삭제" severity="danger" @click="handleDeleteWorkspace" :loading="isDeleting"
+      <Button label="삭제" severity="danger" @click="handleDeleteWorkspace"
         :disabled="deleteConfirmName !== workspaceStore.currentWorkspace?.name" />
     </template>
   </Dialog>
@@ -319,7 +319,7 @@ async function handleSubmit() {
         name: workspaceName.value.trim(),
         description: workspaceDesc.value.trim() || null
       })
-      emit('updated')
+      emit('update:visible', false)
       toast.add({ severity: 'success', summary: '저장 완료', detail: '워크스페이스가 수정되었습니다.', life: 3000 })
     } else {
       // 생성
@@ -339,10 +339,9 @@ async function handleSubmit() {
         }
         await workspaceStore.loadWorkspaces()
       }
-
-      emit('created', workspace)
+      emit('created')  // 부모한테 생성 완료 알림
+      emit('update:visible', false)  // 모달 닫기
       toast.add({ severity: 'success', summary: '생성 완료', detail: '워크스페이스가 생성되었습니다.', life: 3000 })
-      dialogVisible.value = false
     }
   } catch (error) {
     console.error('Failed to submit:', error)
@@ -467,14 +466,14 @@ async function handleDeleteWorkspace() {
   try {
     isDeleting.value = true
     const workspaceId = workspaceStore.currentWorkspaceId
-    
+
     // 모달 먼저 닫기
     isDeleteConfirmOpen.value = false
     dialogVisible.value = false
-    
+
     // 그 다음 삭제 실행
     await workspaceStore.deleteWorkspace(workspaceId)
-    
+
     toast.add({ severity: 'success', summary: '삭제 완료', detail: '워크스페이스가 삭제되었습니다.', life: 3000 })
     emit('deleted')
   } catch (error) {

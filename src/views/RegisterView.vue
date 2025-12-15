@@ -23,51 +23,25 @@
 
             <div class="field">
               <label for="password">비밀번호</label>
-              <Password
-                id="password"
-                v-model="formData.password"
-                placeholder="비밀번호"
-                toggleMask
-                required
-                :inputStyle="{ width: '100%' }"
-                class="w-full"
-              />
+              <Password id="password" v-model="formData.password" placeholder="비밀번호" toggleMask required
+                :inputStyle="{ width: '100%' }" class="w-full" />
             </div>
 
             <div class="field">
               <label for="passwordConfirm">비밀번호 확인</label>
-              <Password
-                id="passwordConfirm"
-                v-model="passwordConfirm"
-                placeholder="비밀번호 확인"
-                :feedback="false"
-                toggleMask
-                required
-                :inputStyle="{ width: '100%' }"
-                class="w-full"
-              />
+              <Password id="passwordConfirm" v-model="passwordConfirm" placeholder="비밀번호 확인" :feedback="false"
+                toggleMask required :inputStyle="{ width: '100%' }" class="w-full" />
             </div>
 
             <!-- 이메일 인증 -->
             <div class="field">
               <label for="email">이메일</label>
               <div class="input-with-button">
-                <InputText
-                  id="email"
-                  v-model="formData.email"
-                  type="email"
-                  placeholder="example@email.com"
-                  :disabled="emailVerified"
-                  required
-                  class="flex-1"
-                />
-                <Button
-                  type="button"
-                  :label="codeSent ? '재발송' : '인증번호 발송'"
+                <InputText id="email" v-model="formData.email" type="email" placeholder="example@email.com"
+                  :disabled="emailVerified" required class="flex-1" />
+                <Button type="button" :label="codeSent ? '재발송' : '인증번호 발송'"
                   :severity="codeSent ? 'secondary' : 'primary'"
-                  :disabled="emailVerified || !formData.email || isSending"
-                  @click="sendVerificationCode"
-                />
+                  :disabled="emailVerified || !formData.email || isSending" @click="sendVerificationCode" />
               </div>
             </div>
 
@@ -75,20 +49,10 @@
             <div class="field" v-if="codeSent && !emailVerified">
               <label for="verificationCode">인증번호</label>
               <div class="input-with-button">
-                <InputText
-                  id="verificationCode"
-                  v-model="verificationCode"
-                  placeholder="6자리 인증번호"
-                  maxlength="6"
-                  class="flex-1"
-                />
-                <Button
-                  type="button"
-                  label="확인"
-                  :loading="isVerifying"
-                  :disabled="!verificationCode || verificationCode.length !== 6"
-                  @click="verifyCode"
-                />
+                <InputText id="verificationCode" v-model="verificationCode" placeholder="6자리 인증번호" maxlength="6"
+                  class="flex-1" />
+                <Button type="button" label="확인" :disabled="!verificationCode || verificationCode.length !== 6"
+                  @click="verifyCode" />
               </div>
               <small class="hint-text">이메일로 발송된 인증번호를 입력해주세요.</small>
             </div>
@@ -98,15 +62,8 @@
               <small class="success-text">✓ 이메일 인증이 완료되었습니다.</small>
             </div>
 
-            <Button
-              type="submit"
-              label="회원가입"
-              icon="pi pi-user-plus"
-              severity="primary"
-              :loading="isLoading"
-              :disabled="!emailVerified"
-              class="w-full"
-            />
+            <Button type="submit" label="회원가입" icon="pi pi-user-plus" severity="primary" :disabled="!emailVerified"
+              class="w-full" />
 
             <div class="login-link">
               <span>이미 계정이 있으신가요?</span>
