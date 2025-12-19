@@ -86,6 +86,9 @@
 </template>
 
 <script setup>
+import * as Y from 'yjs'
+import { WebsocketProvider } from 'y-websocket'
+import Collaboration from '@tiptap/extension-collaboration'
 import { ref, watch, onBeforeUnmount } from 'vue'
 import { useEditor, EditorContent } from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
@@ -103,6 +106,7 @@ const props = defineProps({
   },
 })
 
+
 const emit = defineEmits(['save', 'cancel'])
 
 const formData = ref({
@@ -114,11 +118,17 @@ const formData = ref({
 const isEditMode = ref(false)
 const isSaving = ref(false)
 
+const ydoc = new Y.Doc()
+const wsProvider = ref(null)
+
+
+
 // TipTap 에디터 초기화
 const editor = useEditor({
   extensions: [
     StarterKit.configure({
-      codeBlock: false, // CodeBlockLowlight 사용
+      codeBlock: false,
+      history: false,  // Yjs가 히스토리 관리하므로 비활성화
     }),
     Placeholder.configure({
       placeholder: '내용을 입력하세요...',
@@ -126,12 +136,11 @@ const editor = useEditor({
     CodeBlockLowlight.configure({
       lowlight,
     }),
+    Collaboration.configure({
+      document: ydoc,
+    }),
   ],
-  content: '',
-  onUpdate: ({ editor }) => {
-    formData.value.content = editor.getHTML()
-    triggerAutoSave()
-  },
+  // content 제거 - Yjs가 관리함
 })
 
 // 자동 저장 함수 (디바운스)
@@ -171,16 +180,24 @@ function triggerAutoSave() {
 watch(
   () => props.post,
   (newPost) => {
+    // 기존 연결 정리
+    if (wsProvider.value) {
+      wsProvider.value.destroy()
+    }
+
     if (newPost && newPost.id) {
+      // 새 WebSocket 연결
+      wsProvider.value = new WebsocketProvider(
+        import.meta.env.VITE_WS_URL,
+        `post-${newPost.id}`,
+        ydoc
+      )
+
       isEditMode.value = true
       formData.value = {
         title: newPost.title || '무제',
         content: newPost.content || '',
         folderId: newPost.folderId || null,
-      }
-      // 에디터 내용 설정
-      if (editor.value) {
-        editor.value.commands.setContent(newPost.content || '')
       }
     } else if (newPost && newPost.folderId) {
       isEditMode.value = false
@@ -189,18 +206,12 @@ watch(
         content: '',
         folderId: newPost.folderId,
       }
-      if (editor.value) {
-        editor.value.commands.setContent('')
-      }
     } else {
       isEditMode.value = false
       formData.value = {
         title: '무제',
         content: '',
         folderId: null,
-      }
-      if (editor.value) {
-        editor.value.commands.setContent('')
       }
     }
   },
@@ -219,6 +230,9 @@ watch(
 onBeforeUnmount(() => {
   if (editor.value) {
     editor.value.destroy()
+  }
+  if (wsProvider.value) {
+    wsProvider.value.destroy()
   }
 })
 </script>
