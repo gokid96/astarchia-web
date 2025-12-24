@@ -4,7 +4,6 @@ import { logger } from '@/utils/logger'
 
 // 환경에 따른 Base URL 설정 (개발: localhost, 프로덕션: api.astarchia.com)
 const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8070/api/v1'
-
 const apiClient = axios.create({
   baseURL,
   timeout: 10000,
